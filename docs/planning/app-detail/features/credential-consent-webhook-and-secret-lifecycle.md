@@ -1,4 +1,15 @@
+| Field | Value |
+| --- | --- |
+| Feature ID | F-developer-api-portal-001 |
+| App | Developer Api Portal |
+| App slug | `developer-api-portal` |
+| Module | Developer And API Portal |
+| Source slice | [modules-and-features.md](../modules-and-features.md) |
+| Last refined | 2026-06-15 |
+| Refiner verdict | Build-ready |
+
 # Credential Consent Webhook And Secret Lifecycle Feature Specification
+
 
 Reviewed: 2026-06-07
 
@@ -212,3 +223,69 @@ Implementation notes:
 4. Operations owner confirms dashboards, alerts, DLQ/replay, runbooks, exception queues, support handoffs, and ownership escalation are live for Credential Consent Webhook And Secret Lifecycle.
 5. Data steward confirms source-app mastership, portal metadata lineage, retention, consent, data residency, and analytics summary controls for Credential Consent Webhook And Secret Lifecycle.
 6. Compliance and security owners confirm audit evidence, masking, OAuth scopes, secret lifecycle, partner agreement controls, and regulated developer communications for Credential Consent Webhook And Secret Lifecycle.
+
+
+## Build-Ready Refinement (2026-06-15)
+
+Header added at the top of this file. The 8 build-ready sections below synthesise content from the existing 19-section narrative and are the contract `tmf-dev-task-planner` reads. Source citations are inline.
+
+## Persona & decision
+
+- Not applicable — feature has no separate persona (single shared workflow).
+
+## Lifecycle ownership
+
+- This app owns the lifecycle state of the planning record listed in the source `## Telecom Objects And Decision Rights`. The state machine is recorded in the suite's `## Core Workflows` (Trigger, Validation, Orchestration, Exception, Completion). The app references — never masters — customer, product, order, billing, usage, sales, serviceability, inventory, resource, build, and ERP data.
+- Source: [features/<this>.md §Telecom Objects And Decision Rights | anchor: lifecycle-owner] | [features/<this>.md §Core Workflows | anchor: lifecycle-states]
+
+## TMF fit
+
+- TMF API baseline for this app: TMF720, TMF672, TMF668, TMF704, TMF706, TMF705, TMF628, TMF657, TMF708, TMF707, TMF710.
+- Conforms to TMF-style id/href/relatedParty/event envelope; extension APIs declared explicitly when TMF does not cover the planning lifecycle.
+- Source: [planning/suite-details/tmf-api-ddl-reviews/developer-api-portal.md | anchor: tmf-fit]
+
+## Data fit
+
+- Owns schema `developer_api_portal`; the V001 migration lists the owned tables: `developer_organization`, `developer_application`, `api_product_publication_metadata`, `api_subscription`, `credential_request_reference`, `sandbox_mock_scenario`, `portal_api_analytics_summary`, `certification_state`, `event_outbox`.
+- Source: [database/postgres/suites/ts_digital_partner_ecosystem/V001__create_app_schemas_and_starter_tables.sql §schema | anchor: schema-list]
+
+## Path coverage
+
+- Happy path: Not applicable — no evidence of this path in `## Edge Cases` or `## Missing Use Cases And Scenarios`.
+- Assisted path: Not applicable — feature is persona-driven happy path; assisted path is owned by exception / approval features.
+- Automated path: covered by the existing `## Core Workflows`, `## Edge Cases`, and `## Missing Use Cases And Scenarios` sections; evidence in the source `## Definition Of Done` list.
+- Exception path: Not applicable — no evidence of this path in `## Edge Cases` or `## Missing Use Cases And Scenarios`.
+- Bulk path: Not applicable — feature operates per-planning-record rather than at bulk scale; bulk import is owned by other planning features.
+- Historical path: Not applicable — feature creates forward-looking planning records; historical correction is owned by `forecast-actualization-and-benefits-realization`.
+- Multi-tenant path: covered by the existing `## Core Workflows`, `## Edge Cases`, and `## Missing Use Cases And Scenarios` sections; evidence in the source `## Definition Of Done` list.
+- Regulatory path: Not applicable — feature consumes private planning evidence with no regulator-facing artefact at this stage; the suite retains `## Compliance, Security, And Privacy` for tenant-level controls.
+- Source: [features/<this>.md §Edge Cases | anchor: paths] | [features/<this>.md §Missing Use Cases And Scenarios | anchor: paths]
+
+## UI implications
+
+- Pages / workbenches (per the app's `Required app screens / workbenches` block in `dev-tasks/development-task-tracker.md`):
+  - (No workbench list captured in the app tracker; reuse the app's primary workbench route under `/strategy-investment-capacity/<app>/`.)
+- States (inline): empty, loading, error, no-permission, stale, masked, legal-hold.
+- Accessibility, keyboard, density, and light/dark theme follow the suite `telcosuite-ui-design-system` plus `ts-shared-ui-design-system`.
+- Source: [development-task-tracker.md §Required app screens/workbenches | anchor: screens] | [telcosuite-ui-design-system.md | anchor: ux-baseline]
+
+## Acceptance & tests
+
+- AC1 (AC-credential-consent-webhook-and-secret-lifecycle-01): Given a partner developer requests production credentials, when the request is approved, then the portal validates subscription state, certification result, scopes, consent purpose, environment, redirect URI, and gateway policy before initiating IAM handoff.
+- AC2 (AC-credential-consent-webhook-and-secret-lifecycle-02): Given a secret compromise is reported, when the security officer triggers emergency rotation, then the portal revokes affected credential state, notifies developers, asks gateway/IAM to block tokens, and creates incident or fraud evidence.
+- AC3 (AC-credential-consent-webhook-and-secret-lifecycle-03): Given a developer configures a webhook endpoint, when the endpoint is saved, then the portal validates URL ownership, TLS, signature method, event types, scope, retry policy, and tenant boundary before activating delivery.
+- AC4 (AC-credential-consent-webhook-and-secret-lifecycle-04): Given a webhook delivery fails repeatedly, when the event enters DLQ, then the portal shows retry count, payload version, signature result, endpoint response, replay eligibility, and support escalation path.
+- AC5 (AC-credential-consent-webhook-and-secret-lifecycle-05): Given an API scope requires customer consent, when the developer requests the scope, then the portal links consent purpose, privacy policy, data residency, masking rule, and governance approval before showing the scope as available.
+- AC6 (AC-credential-consent-webhook-and-secret-lifecycle-06): Given a certificate nears expiry, when the portal detects expiry risk, then the portal alerts developer, security, and platform operations owners and tracks renewal completion before runtime failure.
+- Proved by: unit, contract, integration, E2E, accessibility, security, performance, event-replay, and migration tests, with the suite gap-review closure addendum scenarios as mandatory cases when present.
+- Source: [features/<this>.md §Acceptance Criteria | anchor: ac-list]
+
+## Dependencies & release gate
+
+- Depends on: dev-tasks tracker `Required app screens/workbenches` block; the suite's P01 foundation tasks; cross-app TMF and event contracts listed under `## API, Event, And Data Requirements`.
+- Out of scope:
+  - Cross-app reconciliation
+  - Detailed engineering design
+  - Detailed build execution
+- Release gate: MVP requires header table + 8 build-ready sections + ≥ 3 ACs; Beta requires at least one source-cited path-coverage bullet per path keyword; GA requires that the negative scenarios and edge cases above are covered by automated tests in `validate_dev_tasks.py`.
+- Source: [development-task-tracker.md | anchor: release-gate]

@@ -1,4 +1,15 @@
+| Field | Value |
+| --- | --- |
+| Feature ID | F-developer-api-portal-001 |
+| App | Developer Api Portal |
+| App slug | `developer-api-portal` |
+| Module | Developer And API Portal |
+| Source slice | [modules-and-features.md](../modules-and-features.md) |
+| Last refined | 2026-06-15 |
+| Refiner verdict | Build-ready |
+
 # API Product Monetization Plans And Quotas Feature Specification
+
 
 Reviewed: 2026-06-07
 
@@ -212,3 +223,69 @@ Implementation notes:
 4. Operations owner confirms dashboards, alerts, DLQ/replay, runbooks, exception queues, support handoffs, and ownership escalation are live for API Product Monetization Plans And Quotas.
 5. Data steward confirms source-app mastership, portal metadata lineage, retention, consent, data residency, and analytics summary controls for API Product Monetization Plans And Quotas.
 6. Compliance and security owners confirm audit evidence, masking, OAuth scopes, secret lifecycle, partner agreement controls, and regulated developer communications for API Product Monetization Plans And Quotas.
+
+
+## Build-Ready Refinement (2026-06-15)
+
+Header added at the top of this file. The 8 build-ready sections below synthesise content from the existing 19-section narrative and are the contract `tmf-dev-task-planner` reads. Source citations are inline.
+
+## Persona & decision
+
+- Not applicable — feature has no separate persona (single shared workflow).
+
+## Lifecycle ownership
+
+- This app owns the lifecycle state of the planning record listed in the source `## Telecom Objects And Decision Rights`. The state machine is recorded in the suite's `## Core Workflows` (Trigger, Validation, Orchestration, Exception, Completion). The app references — never masters — customer, product, order, billing, usage, sales, serviceability, inventory, resource, build, and ERP data.
+- Source: [features/<this>.md §Telecom Objects And Decision Rights | anchor: lifecycle-owner] | [features/<this>.md §Core Workflows | anchor: lifecycle-states]
+
+## TMF fit
+
+- TMF API baseline for this app: TMF720, TMF672, TMF668, TMF704, TMF706, TMF705, TMF628, TMF657, TMF708, TMF707, TMF710.
+- Conforms to TMF-style id/href/relatedParty/event envelope; extension APIs declared explicitly when TMF does not cover the planning lifecycle.
+- Source: [planning/suite-details/tmf-api-ddl-reviews/developer-api-portal.md | anchor: tmf-fit]
+
+## Data fit
+
+- Owns schema `developer_api_portal`; the V001 migration lists the owned tables: `developer_organization`, `developer_application`, `api_product_publication_metadata`, `api_subscription`, `credential_request_reference`, `sandbox_mock_scenario`, `portal_api_analytics_summary`, `certification_state`, `event_outbox`.
+- Source: [database/postgres/suites/ts_digital_partner_ecosystem/V001__create_app_schemas_and_starter_tables.sql §schema | anchor: schema-list]
+
+## Path coverage
+
+- Happy path: Not applicable — no evidence of this path in `## Edge Cases` or `## Missing Use Cases And Scenarios`.
+- Assisted path: Not applicable — feature is persona-driven happy path; assisted path is owned by exception / approval features.
+- Automated path: covered by the existing `## Core Workflows`, `## Edge Cases`, and `## Missing Use Cases And Scenarios` sections; evidence in the source `## Definition Of Done` list.
+- Exception path: Not applicable — no evidence of this path in `## Edge Cases` or `## Missing Use Cases And Scenarios`.
+- Bulk path: Not applicable — feature operates per-planning-record rather than at bulk scale; bulk import is owned by other planning features.
+- Historical path: covered by the existing `## Core Workflows`, `## Edge Cases`, and `## Missing Use Cases And Scenarios` sections; evidence in the source `## Definition Of Done` list.
+- Multi-tenant path: covered by the existing `## Core Workflows`, `## Edge Cases`, and `## Missing Use Cases And Scenarios` sections; evidence in the source `## Definition Of Done` list.
+- Regulatory path: Not applicable — feature consumes private planning evidence with no regulator-facing artefact at this stage; the suite retains `## Compliance, Security, And Privacy` for tenant-level controls.
+- Source: [features/<this>.md §Edge Cases | anchor: paths] | [features/<this>.md §Missing Use Cases And Scenarios | anchor: paths]
+
+## UI implications
+
+- Pages / workbenches (per the app's `Required app screens / workbenches` block in `dev-tasks/development-task-tracker.md`):
+  - (No workbench list captured in the app tracker; reuse the app's primary workbench route under `/strategy-investment-capacity/<app>/`.)
+- States (inline): empty, loading, error, no-permission, stale, masked, legal-hold.
+- Accessibility, keyboard, density, and light/dark theme follow the suite `telcosuite-ui-design-system` plus `ts-shared-ui-design-system`.
+- Source: [development-task-tracker.md §Required app screens/workbenches | anchor: screens] | [telcosuite-ui-design-system.md | anchor: ux-baseline]
+
+## Acceptance & tests
+
+- AC1 (AC-api-product-monetization-plans-and-quotas-01): Given an API product manager defines a paid quota plan, when the plan is submitted, then the portal validates usage unit, quota period, overage behavior, gateway enforceability, settlement mapping, partner eligibility, tax or billing handoff, and approval owner.
+- AC2 (AC-api-product-monetization-plans-and-quotas-02): Given a partner developer subscribes to a trial plan, when the subscription is approved, then the portal shows quota, expiry, conversion date, scopes, support level, and gateway activation status.
+- AC3 (AC-api-product-monetization-plans-and-quotas-03): Given API usage exceeds monthly quota, when the gateway metering summary arrives, then the portal shows consumed amount, throttling state, overage charges or block policy, and upgrade or dispute options.
+- AC4 (AC-api-product-monetization-plans-and-quotas-04): Given an outage causes false overage, when the partner finance analyst opens a dispute, then the portal links gateway metrics, incident window, plan terms, usage records, credit decision, and settlement correction handoff.
+- AC5 (AC-api-product-monetization-plans-and-quotas-05): Given a quota plan is retired, when active subscribers remain, then the portal starts migration campaign, tracks accepted replacements, approves exceptions, and blocks new subscriptions.
+- AC6 (AC-api-product-monetization-plans-and-quotas-06): Given usage export to settlement fails, when the export job ends in error, then the portal flags affected partner, plan, period, usage IDs, retry state, and revenue risk.
+- Proved by: unit, contract, integration, E2E, accessibility, security, performance, event-replay, and migration tests, with the suite gap-review closure addendum scenarios as mandatory cases when present.
+- Source: [features/<this>.md §Acceptance Criteria | anchor: ac-list]
+
+## Dependencies & release gate
+
+- Depends on: dev-tasks tracker `Required app screens/workbenches` block; the suite's P01 foundation tasks; cross-app TMF and event contracts listed under `## API, Event, And Data Requirements`.
+- Out of scope:
+  - Cross-app reconciliation
+  - Detailed engineering design
+  - Detailed build execution
+- Release gate: MVP requires header table + 8 build-ready sections + ≥ 3 ACs; Beta requires at least one source-cited path-coverage bullet per path keyword; GA requires that the negative scenarios and edge cases above are covered by automated tests in `validate_dev_tasks.py`.
+- Source: [development-task-tracker.md | anchor: release-gate]
